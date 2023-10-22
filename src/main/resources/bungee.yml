@@ -1,0 +1,7 @@
+# Spigot-side configuration
+name: YukiMessenger
+version: 1.0.0
+author: KuromeSama6
+main: moe.protasis.yukimessenger.bungee.YukiMessenger
+depends:
+  - coreutils

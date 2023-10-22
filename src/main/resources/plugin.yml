@@ -1,0 +1,13 @@
+# Spigot-side configuration
+name: YukiMessenger
+version: 1.0.0
+author: KuromeSama6
+main: moe.protasis.yukimessenger.spigot.YukiMessenger
+depend:
+  - coreutils
+
+commands:
+  ymping:
+    usage: ymping [content]
+    description: tests the YukiMessenger connection. The proxy will send back whatever [content] is.
+    permission: yukimessenger.ping
