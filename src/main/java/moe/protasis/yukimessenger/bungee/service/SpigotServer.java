@@ -1,6 +1,6 @@
 package moe.protasis.yukimessenger.bungee.service;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonObject;
 import moe.protasis.yukimessenger.util.EnvUtil;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.java_websocket.WebSocket;
@@ -26,9 +26,9 @@ public class SpigotServer {
      * @param action The action.
      * @param data The data.
      */
-    public void SendUnidented(String action, ObjectNode data) {
+    public void SendUnidented(String action, JsonObject data) {
         EnvUtil.EnsureEnv(true);
-        data.put("__action", action);
+        data.addProperty("__action", action);
         conn.send(data.toString());
     }
 }

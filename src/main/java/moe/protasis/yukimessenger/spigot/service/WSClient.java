@@ -1,12 +1,15 @@
 package moe.protasis.yukimessenger.spigot.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import lombok.Getter;
 import moe.protasis.yukimessenger.bungee.MessengerServer;
 import moe.protasis.yukimessenger.spigot.MessengerClient;
 import moe.protasis.yukimessenger.spigot.YukiMessenger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
@@ -37,18 +40,18 @@ public class WSClient extends WebSocketClient {
 
     @Override
     public void onMessage(String s) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            MessengerClient.getInstance().ReceiveMessage(mapper.readTree(s));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        MessengerClient.getInstance().ReceiveMessage(new Gson().fromJson(s, JsonElement.class).getAsJsonObject());
     }
 
     @Override
     public void onClose(int i, String s, boolean b) {
         YukiMessenger.GetLogger().warning(String.format("Websocket closed with code %s: %s", i, s));
         isReady = false;
+        // kick all players
+        if (YukiMessenger.config.getBoolean("kickOnDisconnect", true)) {
+            for (Player player : Bukkit.getOnlinePlayers())
+                player.kickPlayer("messenger connection dropped");
+        }
     }
 
     @Override

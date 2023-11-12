@@ -1,11 +1,10 @@
 package moe.protasis.yukimessenger.spigot;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import lombok.Getter;
-import moe.protasis.yukimessenger.bungee.service.InboundMessage;
 import moe.protasis.yukimessenger.spigot.service.ServerboundMessage;
 import moe.protasis.yukimessenger.spigot.service.WSClient;
-import moe.protasis.yukimessenger.util.ObjectNodeBuilder;
+import org.bukkit.Bukkit;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,30 +16,25 @@ public class MessengerClient {
     private WSClient wsClient;
     private final Map<ServerboundMessage, Consumer<ServerboundMessage.Response>> retryQueue = new HashMap<>();
     private final Map<UUID, Consumer<ServerboundMessage.Response>> callbacks = new HashMap<>();
-    private final Map<String, Consumer<JsonNode>> susbcribers = new HashMap<>();
-
+    private final Map<String, Consumer<JsonObject>> susbcribers = new HashMap<>();
 
     public MessengerClient() {
         instance = this;
+        YukiMessenger.GetLogger().info(String.format("§bStarting websocket client with ident %s", GetIdent()));
+        wsClient = CreateClient();
 
-        String ident = GetIdent();
-        YukiMessenger.GetLogger().info(String.format("§bStarting websocket client with ident %s", ident));
-
-        String ip = YukiMessenger.config.getString("ip", "127.0.0.1");
-        String port = YukiMessenger.config.getString("port", "8633");
-        String uri = String.format("ws://%s:%s", ip, port);
-        try {
-            Map<String, String> headers = new HashMap<>();
-            headers.put("ident", ident);
-            wsClient = new WSClient(new URI(uri), headers);
-        } catch (URISyntaxException e) {
-            YukiMessenger.GetLogger().severe(String.format("Unable to parse URI (%s)!", uri));
-            e.printStackTrace();
-            return;
+        // reconnection timer
+        long interval = YukiMessenger.config.getLong("reconnectInterval", 5000);
+        if (interval > 0) {
+            YukiMessenger.GetLogger().info(String.format("§7Will reattempt websocket connection at interval %sms", interval));
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(YukiMessenger.getInstance(), this::AttemptReconnect, interval / 1000 * 20, interval / 1000 * 20);
         }
+    }
 
-        YukiMessenger.GetLogger().info(String.format("Websocket client started on %s", uri));
-
+    private void AttemptReconnect() {
+        if (wsClient.isReady()) return;
+        YukiMessenger.GetLogger().info("§7Attempting to reconnect websocket...");
+        wsClient = CreateClient();
     }
 
     public void SendAsync(ServerboundMessage message, Consumer<ServerboundMessage.Response> callback) {
@@ -62,15 +56,17 @@ public class MessengerClient {
         retryQueue.clear();
     }
 
-    public void Subscribe(String action, Consumer<JsonNode> callback) {
+    public void Subscribe(String action, Consumer<JsonObject> callback) {
         susbcribers.put(action, callback);
     }
 
-    public void ReceiveMessage(JsonNode data) {
+    public void ReceiveMessage(JsonObject data) {
         if (data.has("__id")) {
             // idented message for a request
-            UUID id = UUID.fromString(data.get("__id").textValue());
-            ServerboundMessage.Response response = new ServerboundMessage.Response(true, data);
+            UUID id = UUID.fromString(data.get("__id").getAsString());
+            boolean hasError = data.has("__error");
+
+            ServerboundMessage.Response response = new ServerboundMessage.Response(!hasError, data);
             Consumer<ServerboundMessage.Response> callback = callbacks.get(id);
             if (callback != null) {
                 callback.accept(response);
@@ -80,8 +76,8 @@ public class MessengerClient {
 
         if (data.has("__action")) {
             // unidented message
-            String action = data.get("__action").textValue();
-            Consumer<JsonNode> callback = susbcribers.get(action);
+            String action = data.get("__action").getAsString();
+            Consumer<JsonObject> callback = susbcribers.get(action);
             if (callback != null) callback.accept(data);
         }
     }
@@ -103,5 +99,22 @@ public class MessengerClient {
 
     public void Close() {
         wsClient.close(1001, "downstream server restarting");
+    }
+
+    private WSClient CreateClient() {
+        if (wsClient != null && wsClient.isOpen()) wsClient.close();
+
+        String ip = YukiMessenger.config.getString("ip", "127.0.0.1");
+        String port = YukiMessenger.config.getString("port", "8633");
+        String uri = String.format("ws://%s:%s", ip, port);
+        try {
+            Map<String, String> headers = new HashMap<>();
+            headers.put("ident", GetIdent());
+            YukiMessenger.GetLogger().info(String.format("Websocket client starting on %s", uri));
+            return new WSClient(new URI(uri), headers);
+        } catch (URISyntaxException e) {
+            YukiMessenger.GetLogger().severe(String.format("Unable to parse URI (%s)!", uri));
+            throw new RuntimeException(e);
+        }
     }
 }

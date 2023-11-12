@@ -4,7 +4,7 @@ import lombok.Getter;
 import moe.icegame.coreutils.GameUtil;
 import moe.protasis.yukimessenger.YukiMessengerAPI;
 import moe.protasis.yukimessenger.bungee.service.SpigotServer;
-import moe.protasis.yukimessenger.util.ObjectNodeBuilder;
+import moe.protasis.yukimessenger.util.JsonObjectBuilder;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -39,8 +39,8 @@ public class YukiMessenger extends Plugin {
         server = new MessengerServer();
 
         GetApi().SubscribeServerbound("yukimessenger.ping", res -> {
-            res.Squawk(new ObjectNodeBuilder()
-                    .put("content", res.data.get("content").textValue())
+            res.Squawk(new JsonObjectBuilder()
+                    .put("content", res.data.get("content").getAsString())
                     .finish());
         });
     }
@@ -50,6 +50,8 @@ public class YukiMessenger extends Plugin {
         for (SpigotServer server : MessengerServer.getInstance().getClients()) {
             server.conn.close(1012, "proxy restarting");
         }
+
+        MessengerServer.getInstance().Close();
     }
 
     public YukiMessengerAPI GetApi() {

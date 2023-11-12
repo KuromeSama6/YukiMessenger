@@ -1,10 +1,10 @@
 package moe.protasis.yukimessenger.bungee.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import moe.protasis.yukimessenger.bungee.MessengerServer;
 import moe.protasis.yukimessenger.bungee.YukiMessenger;
+import moe.protasis.yukimessenger.bungee.event.DownstreamServerDisconnectEvent;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.java_websocket.WebSocket;
@@ -15,6 +15,7 @@ import org.java_websocket.handshake.ServerHandshakeBuilder;
 import org.java_websocket.server.WebSocketServer;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 public class WSServer extends WebSocketServer {
     public WSServer(InetSocketAddress addr) {
@@ -38,6 +39,9 @@ public class WSServer extends WebSocketServer {
         SpigotServer server = MessengerServer.getInstance().GetServer(webSocket);
         YukiMessenger.GetLogger().warning(String.format("[%s] Websocket closed with code %s: %s", server.identName, i, s));
         MessengerServer.getInstance().RemoveServer(server);
+
+        DownstreamServerDisconnectEvent e = new DownstreamServerDisconnectEvent(server, i, s);
+        ProxyServer.getInstance().getPluginManager().callEvent(e);
     }
 
     @Override
@@ -45,13 +49,7 @@ public class WSServer extends WebSocketServer {
         SpigotServer server = MessengerServer.getInstance().GetServer(webSocket);
         if (server == null) return;
 
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            JsonNode data = mapper.readTree(s);
-            MessengerServer.getInstance().ProcessMessage(server, data);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        MessengerServer.getInstance().ProcessMessage(server, JsonParser.parseString(s).getAsJsonObject());
     }
 
     @Override

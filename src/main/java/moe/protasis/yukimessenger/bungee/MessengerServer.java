@@ -1,11 +1,11 @@
 package moe.protasis.yukimessenger.bungee;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import moe.protasis.yukimessenger.bungee.service.InboundMessage;
 import moe.protasis.yukimessenger.bungee.service.SpigotServer;
 import moe.protasis.yukimessenger.bungee.service.WSServer;
+import moe.protasis.yukimessenger.util.JsonObjectBuilder;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.java_websocket.WebSocket;
@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class MessengerServer {
@@ -53,18 +52,36 @@ public class MessengerServer {
         susbcribers.put(action, callback);
     }
 
-    public void ProcessMessage(SpigotServer server, JsonNode message) {
+    public void ProcessMessage(SpigotServer server, JsonObject message) {
         if (!message.has("__action")) return;
-        String action = message.get("__action").textValue();
+        String action = message.get("__action").getAsString();
 
         if (susbcribers.containsKey(action)) {
-            susbcribers.get(action).accept(new InboundMessage(server, message));
+            InboundMessage msg = new InboundMessage(server, message);
+            try {
+                susbcribers.get(action).accept(msg);
+            } catch (Exception e) {
+                YukiMessenger.GetLogger().severe(String.format("An error occured while processing a message (server=%s, action=%s)", server.identName, action));
+                e.printStackTrace();
+                new InboundMessage(server, message).Squawk(new JsonObjectBuilder()
+                        .put("__error", true)
+                        .put("__error_message", e.getMessage())
+                        .finish());
+            }
         }
     }
 
-
     public void RemoveServer(SpigotServer server) {
         clients.remove(server);
+    }
+
+    public void Close() {
+        try {
+            wsServer.stop();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

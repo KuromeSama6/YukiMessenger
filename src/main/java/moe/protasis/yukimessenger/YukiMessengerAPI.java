@@ -1,6 +1,6 @@
 package moe.protasis.yukimessenger;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import moe.protasis.yukimessenger.bungee.MessengerServer;
 import moe.protasis.yukimessenger.bungee.YukiMessenger;
 import moe.protasis.yukimessenger.bungee.service.InboundMessage;
@@ -8,7 +8,10 @@ import moe.protasis.yukimessenger.bungee.service.SpigotServer;
 import moe.protasis.yukimessenger.spigot.MessengerClient;
 import moe.protasis.yukimessenger.spigot.service.ServerboundMessage;
 import moe.protasis.yukimessenger.util.EnvUtil;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import okio.Timeout;
+import oracle.jdbc.proxy.annotation.Pre;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -17,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class YukiMessengerAPI {
     /**
@@ -25,6 +29,16 @@ public class YukiMessengerAPI {
      * Otherwise, this instance is running on a spigot server.
      */
     public final boolean isProxy;
+
+    /**
+     * <b>Spigot only.</b>
+     * Gets the ident name of the server that this YukiMessenger instance is running on.
+     * @return The ident name.
+     */
+    public String GetIdent() {
+        EnvUtil.EnsureEnv(false);
+        return MessengerClient.getInstance().GetIdent();
+    }
 
     /**
      * <b>Proxy only.</b>
@@ -40,7 +54,10 @@ public class YukiMessengerAPI {
     }
 
     public SpigotServer GetServer(String name) {
-        return GetServer(c -> c.identName.equals(name));
+        return GetServer(c -> c.identName.matches(name));
+    }
+    public SpigotServer GetServer(ServerInfo server) {
+        return GetServer(c -> c.spigot == server);
     }
 
     /**
@@ -51,6 +68,18 @@ public class YukiMessengerAPI {
     public List<SpigotServer> GetAllServers() {
         EnvUtil.EnsureEnv(true);
         return MessengerServer.getInstance().getClients();
+    }
+
+    public List<SpigotServer> GetAllServers(Predicate<SpigotServer> pred) {
+        EnvUtil.EnsureEnv(true);
+        return MessengerServer.getInstance().getClients().stream()
+                .filter(pred)
+                .collect(Collectors.toList());
+    }
+
+    public List<SpigotServer> GetAllServers(String regex) {
+        EnvUtil.EnsureEnv(true);
+        return GetAllServers(c -> c.identName.matches(regex));
     }
 
     /**
@@ -70,7 +99,7 @@ public class YukiMessengerAPI {
      * @param action The action to subscribe to.
      * @param callback The inbound message when this action is triggered.
      */
-    public void SubscribeClientbound(String action, Consumer<JsonNode> callback) {
+    public void SubscribeClientbound(String action, Consumer<JsonObject> callback) {
         EnvUtil.EnsureEnv(false);
         MessengerClient.getInstance().Subscribe(action, callback);
     }

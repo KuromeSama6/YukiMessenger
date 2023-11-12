@@ -1,3 +1,9 @@
 ip: 127.0.0.1
 port: 8633
 ident: #
+
+# kicks all players upons websocket disonnection
+kickOnDisconnect: true
+
+# Interval at which to attempt reconnection (milliseconds). Set to -1 to disable.
+reconnectInterval: 5000
