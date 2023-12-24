@@ -51,6 +51,7 @@ public class YukiMessenger extends Plugin {
             server.conn.close(1012, "proxy restarting");
         }
 
+        logger.info("Stopping websocket server");
         MessengerServer.getInstance().Close();
     }
 

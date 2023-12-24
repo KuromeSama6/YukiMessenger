@@ -1,10 +1,11 @@
 package moe.protasis.yukimessenger.bungee.service;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import moe.protasis.yukimessenger.bungee.MessengerServer;
 import moe.protasis.yukimessenger.bungee.YukiMessenger;
 import moe.protasis.yukimessenger.bungee.event.DownstreamServerDisconnectEvent;
+import moe.protasis.yukimessenger.util.EnvUtil;
+import moe.protasis.yukimessenger.util.PortKiller;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.java_websocket.WebSocket;
@@ -20,7 +21,8 @@ import java.util.concurrent.TimeUnit;
 public class WSServer extends WebSocketServer {
     public WSServer(InetSocketAddress addr) {
         super(addr);
-        start();
+
+        AddStartServerScheduler();
     }
 
     @Override
@@ -80,5 +82,17 @@ public class WSServer extends WebSocketServer {
         }
 
         return builder;
+    }
+
+    private void AddStartServerScheduler() {
+        if (EnvUtil.CheckPortUsable(getAddress().getPort())) {
+            start();
+        } else {
+            YukiMessenger.GetLogger().warning(String.format("Port %s is in use. Retrying in 1 second.", getAddress().getPort()));
+            try {
+                PortKiller.KillProcessByPort(getAddress().getPort());
+            } catch (Exception ignored) {}
+            ProxyServer.getInstance().getScheduler().schedule(YukiMessenger.getInstance(), this::AddStartServerScheduler, 1, TimeUnit.SECONDS);
+        }
     }
 }

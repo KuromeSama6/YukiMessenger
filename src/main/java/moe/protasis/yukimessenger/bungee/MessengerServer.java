@@ -26,7 +26,7 @@ public class MessengerServer {
 
     public MessengerServer() {
         instance = this;
-        YukiMessenger.GetLogger().info("Starting websocket client");
+        YukiMessenger.GetLogger().info("Starting websocket server");
 
         String ip = YukiMessenger.getConfig().getString("ip", "127.0.0.1");
         int port = YukiMessenger.getConfig().getInt("port", 8633);
