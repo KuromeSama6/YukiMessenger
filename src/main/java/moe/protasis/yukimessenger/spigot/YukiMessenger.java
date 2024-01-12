@@ -21,7 +21,7 @@ public class YukiMessenger extends JavaPlugin {
     private MessengerClient client;
 
     @Override
-    public void onEnable() {
+    public void onLoad() {
         instance = this;
         logger = super.getLogger();
 
@@ -29,8 +29,6 @@ public class YukiMessenger extends JavaPlugin {
         config = GameUtil.UpdateConfigWithDefaults(getDataFolder(), this, "/spigot/config.yml", "/config.yml");
 
         client = new MessengerClient();
-
-
     }
 
     @Override
