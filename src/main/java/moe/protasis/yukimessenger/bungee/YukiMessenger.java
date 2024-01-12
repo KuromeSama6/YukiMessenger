@@ -22,7 +22,7 @@ public class YukiMessenger extends Plugin {
     private MessengerServer server;
 
     @Override
-    public void onEnable() {
+    public void onLoad() {
         instance = this;
         logger = getLogger();
 
