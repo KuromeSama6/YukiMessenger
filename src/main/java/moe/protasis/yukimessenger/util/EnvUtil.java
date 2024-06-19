@@ -1,6 +1,5 @@
 package moe.protasis.yukimessenger.util;
 
-import moe.protasis.yukimessenger.YukiMessengerAPI;
 import moe.protasis.yukimessenger.bungee.MessengerServer;
 import moe.protasis.yukimessenger.spigot.MessengerClient;
 

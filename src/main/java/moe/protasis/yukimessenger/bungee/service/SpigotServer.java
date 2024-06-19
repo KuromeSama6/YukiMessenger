@@ -1,6 +1,8 @@
 package moe.protasis.yukimessenger.bungee.service;
 
 import com.google.gson.JsonObject;
+import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukimessenger.message.IMessageNode;
 import moe.protasis.yukimessenger.util.EnvUtil;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.java_websocket.WebSocket;
@@ -8,7 +10,7 @@ import org.java_websocket.WebSocket;
 /**
  * Represents a client (spigot instance) that is connected and has an ident.
  */
-public class SpigotServer {
+public class SpigotServer implements IMessageNode {
     public final String identName;
     public final WebSocket conn;
     public final ServerInfo spigot;
@@ -29,6 +31,11 @@ public class SpigotServer {
     public void SendUnidented(String action, JsonObject data) {
         EnvUtil.EnsureEnv(true);
         data.addProperty("__action", action);
+        conn.send(data.toString());
+    }
+
+    @Override
+    public void Send(JsonWrapper data) {
         conn.send(data.toString());
     }
 }

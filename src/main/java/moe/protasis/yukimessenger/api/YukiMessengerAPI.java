@@ -1,18 +1,17 @@
-package moe.protasis.yukimessenger;
+package moe.protasis.yukimessenger.api;
 
 import com.google.gson.JsonObject;
 import moe.protasis.yukimessenger.bungee.MessengerServer;
-import moe.protasis.yukimessenger.bungee.YukiMessenger;
-import moe.protasis.yukimessenger.bungee.service.InboundMessage;
+import moe.protasis.yukimessenger.annotation.EndpointHandler;
+import moe.protasis.yukimessenger.annotation.MessageHandler;
+import moe.protasis.yukimessenger.api.impl.EndpointMethodHandler;
 import moe.protasis.yukimessenger.bungee.service.SpigotServer;
 import moe.protasis.yukimessenger.spigot.MessengerClient;
-import moe.protasis.yukimessenger.spigot.service.ServerboundMessage;
+import moe.protasis.yukimessenger.message.ServerBoundMessage;
 import moe.protasis.yukimessenger.util.EnvUtil;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import okio.Timeout;
-import oracle.jdbc.proxy.annotation.Pre;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -22,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class YukiMessengerAPI {
     /**
      * Whether this instance is running on the proxy sever or a spigot server.
@@ -87,10 +87,37 @@ public class YukiMessengerAPI {
      * Subscribes to an action.
      * @param action The action to subscribe to.
      * @param callback The inbound message when this action is triggered.
+     * @deprecated Please use the <code>SubscribeServerbound</code> and <code>HandlerMethod</code> to
+     * listen for events.
+     * @see MessageHandler
+     * @see EndpointHandler
      */
-    public void SubscribeServerbound(String action, Consumer<InboundMessage> callback) {
+    @Deprecated
+    public void SubscribeServerbound(String action, IInboundMessageHandler callback) {
         EnvUtil.EnsureEnv(true);
         MessengerServer.getInstance().Subscribe(action, callback);
+    }
+
+    /**
+     * <b>Proxy only.</b>
+     * Subscribes to all actions specified by each of the <code>HandlerMethod</code> annotations on
+     * methods of this class. The method corresponding to the annotation will be called.
+     * @param handler The <code>EndpointHandler</code> instance.
+     * @see EndpointHandler
+     * @see MessageHandler
+     */
+    public void SubscribeServerbound(EndpointHandler handler) {
+        EnvUtil.EnsureEnv(true);
+        try {
+            for (Method method : handler.getClass().getDeclaredMethods()) {
+                MessageHandler annotation = method.getAnnotation(MessageHandler.class);
+                if (annotation == null) continue;
+                MessengerServer.getInstance().Subscribe(annotation.value(), new EndpointMethodHandler(handler, method));
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -110,7 +137,7 @@ public class YukiMessengerAPI {
      * @param msg The message.
      * @param callback The callback that is invoked when a response is received. If null, responses will not be processed.
      */
-    public void SendAsync(ServerboundMessage msg, Consumer<ServerboundMessage.Response> callback) {
+    public void SendAsync(ServerBoundMessage msg, Consumer<ServerBoundMessage.Response> callback) {
         EnvUtil.EnsureEnv(false);
         MessengerClient.getInstance().SendAsync(msg, callback);
     }
@@ -123,16 +150,16 @@ public class YukiMessengerAPI {
      *                object with its <code>processed</code> field set to <code>false</code>.
      * @return The callback that is invoked when a response is received.
      */
-    public ServerboundMessage.Response SendSync(ServerboundMessage msg, long timeout) {
+    public ServerBoundMessage.Response SendSync(ServerBoundMessage msg, long timeout) {
         EnvUtil.EnsureEnv(false);
-        CompletableFuture<ServerboundMessage.Response> future = new CompletableFuture<>();
+        CompletableFuture<ServerBoundMessage.Response> future = new CompletableFuture<>();
 
         SendAsync(msg, future::complete);
 
         try {
             return future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            return new ServerboundMessage.Response(false, null);
+            return new ServerBoundMessage.Response(false, null);
         }
 
     }

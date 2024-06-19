@@ -2,7 +2,12 @@ package moe.protasis.yukimessenger.bungee;
 
 import com.google.gson.JsonObject;
 import lombok.Getter;
-import moe.protasis.yukimessenger.bungee.service.InboundMessage;
+import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukimessenger.api.IInboundMessageHandler;
+import moe.protasis.yukimessenger.message.InboundMessage;
+import moe.protasis.yukimessenger.message.MessageProcessor;
+import moe.protasis.yukimessenger.message.MessageResponse;
+import moe.protasis.yukimessenger.message.ServerInboundMessage;
 import moe.protasis.yukimessenger.bungee.service.SpigotServer;
 import moe.protasis.yukimessenger.bungee.service.WSServer;
 import moe.protasis.yukimessenger.util.JsonObjectBuilder;
@@ -12,24 +17,22 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
+import java.util.*;
 
 public class MessengerServer {
     @Getter private static MessengerServer instance;
     private final WSServer wsServer;
     @Getter private final List<SpigotServer> clients = new ArrayList<>();
-    private final Map<String, Consumer<InboundMessage>> susbcribers = new HashMap<>();
+    private final Map<String, IInboundMessageHandler> susbcribers = new HashMap<>();
+    @Getter
+    private final MessageProcessor processor = new MessageProcessor();
 
     public MessengerServer() {
         instance = this;
         YukiMessenger.GetLogger().info("Starting websocket server");
 
-        String ip = YukiMessenger.getConfig().getString("ip", "127.0.0.1");
-        int port = YukiMessenger.getConfig().getInt("port", 8633);
+        String ip = YukiMessenger.getConfig().GetString("ip", "127.0.0.1");
+        int port = YukiMessenger.getConfig().GetInt("port", 8633);
         wsServer = new WSServer(new InetSocketAddress(ip, port));
     }
 
@@ -48,27 +51,34 @@ public class MessengerServer {
                 .findFirst().orElse(null);
     }
 
-    public void Subscribe(String action, Consumer<InboundMessage> callback) {
+    public void Subscribe(String action, IInboundMessageHandler callback) {
         susbcribers.put(action, callback);
     }
 
-    public void ProcessMessage(SpigotServer server, JsonObject message) {
-        if (!message.has("__action")) return;
-        String action = message.get("__action").getAsString();
+    public void ProcessMessage(SpigotServer server, InboundMessage msg) {
+        JsonWrapper data = msg.getData();
+        if (msg.getId() != null) {
+            // idented message for a request
+            UUID id = msg.getId();
+            boolean hasError = data.Has("__error");
 
-        if (susbcribers.containsKey(action)) {
-            InboundMessage msg = new InboundMessage(server, message);
-            try {
-                susbcribers.get(action).accept(msg);
-            } catch (Exception e) {
-                YukiMessenger.GetLogger().severe(String.format("An error occured while processing a message (server=%s, action=%s)", server.identName, action));
-                e.printStackTrace();
-                new InboundMessage(server, message).Squawk(new JsonObjectBuilder()
-                        .put("__error", true)
-                        .put("__error_message", e.getMessage())
-                        .finish());
+            MessageResponse response = new MessageResponse(!hasError, data);
+            processor.HandleResponse(id, response);
+        }
+
+        if (msg.getAction() != null) {
+            String action = msg.getAction();
+            if (susbcribers.containsKey(action)) {
+                try {
+                    susbcribers.get(action).Handle(msg);
+                } catch (Exception e) {
+                    YukiMessenger.GetLogger().severe(String.format("An error occured while processing a message (server=%s, action=%s)", server.identName, action));
+                    e.printStackTrace();
+                    msg.Reject(e.getMessage());
+                }
             }
         }
+
     }
 
     public void RemoveServer(SpigotServer server) {
@@ -83,5 +93,4 @@ public class MessengerServer {
         }
 
     }
-
 }

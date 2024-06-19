@@ -4,7 +4,7 @@ version: 1.0.0
 author: KuromeSama6
 main: moe.protasis.yukimessenger.spigot.YukiMessenger
 depend:
-  - coreutils
+  - YukiCommons
 
 commands:
   ymping:

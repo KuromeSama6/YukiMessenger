@@ -5,7 +5,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.Getter;
+import moe.protasis.yukicommons.json.JsonWrapper;
 import moe.protasis.yukimessenger.bungee.MessengerServer;
+import moe.protasis.yukimessenger.message.InboundMessage;
 import moe.protasis.yukimessenger.spigot.MessengerClient;
 import moe.protasis.yukimessenger.spigot.YukiMessenger;
 import org.bukkit.Bukkit;
@@ -40,7 +42,8 @@ public class WSClient extends WebSocketClient {
 
     @Override
     public void onMessage(String s) {
-        MessengerClient.getInstance().ReceiveMessage(new Gson().fromJson(s, JsonElement.class).getAsJsonObject());
+        JsonWrapper data = new JsonWrapper(s);
+        MessengerClient.getInstance().ReceiveMessage(new InboundMessage(MessengerClient.getInstance(), data));
     }
 
     @Override
@@ -48,7 +51,7 @@ public class WSClient extends WebSocketClient {
         YukiMessenger.GetLogger().warning(String.format("Websocket closed with code %s: %s", i, s));
         isReady = false;
         // kick all players
-        if (YukiMessenger.config.getBoolean("kickOnDisconnect", true)) {
+        if (YukiMessenger.config.GetBool("kickOnDisconnect", true)) {
             for (Player player : Bukkit.getOnlinePlayers())
                 player.kickPlayer("messenger connection dropped");
         }

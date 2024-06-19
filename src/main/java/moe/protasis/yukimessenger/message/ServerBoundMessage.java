@@ -1,20 +1,20 @@
-package moe.protasis.yukimessenger.spigot.service;
+package moe.protasis.yukimessenger.message;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.google.gson.JsonObject;
-import lombok.Getter;
 
 import java.util.UUID;
 
 /**
  * Represents a message that is sent from a client (a Spigot instance) to the server (the proxy).
  */
-public class ServerboundMessage {
+@Deprecated
+public class ServerBoundMessage {
     public final String action;
     public final JsonObject data;
     public final UUID id;
 
-    public ServerboundMessage(String action, JsonObject data) {
+    public ServerBoundMessage(String action, JsonObject data) {
         this.action = action;
         this.data = data;
         this.id = UuidCreator.getTimeBased();
@@ -23,6 +23,7 @@ public class ServerboundMessage {
         data.addProperty("__action", action);
     }
 
+    @Deprecated
     public static class Response {
         /**
          * Whether this response had made it to the proxy or not.

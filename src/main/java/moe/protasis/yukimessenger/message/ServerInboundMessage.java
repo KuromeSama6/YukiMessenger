@@ -1,18 +1,19 @@
-package moe.protasis.yukimessenger.bungee.service;
+package moe.protasis.yukimessenger.message;
 
 import com.google.gson.JsonObject;
-import moe.protasis.yukimessenger.bungee.MessengerServer;
 import moe.protasis.yukimessenger.bungee.YukiMessenger;
+import moe.protasis.yukimessenger.bungee.service.SpigotServer;
 import moe.protasis.yukimessenger.util.JsonObjectBuilder;
 
 import java.util.UUID;
 
-public class InboundMessage {
+@Deprecated
+public class ServerInboundMessage {
     public final SpigotServer source;
     public final JsonObject data;
     public final UUID id;
 
-    public InboundMessage(SpigotServer source, JsonObject data) {
+    public ServerInboundMessage(SpigotServer source, JsonObject data) {
         this.source = source;
         this.data = data;
 
