@@ -1,5 +1,6 @@
 package moe.protasis.yukimessenger.api;
 
+import moe.protasis.yukicommons.json.JsonWrapper;
 import moe.protasis.yukicommons.util.EnvironmentType;
 import moe.protasis.yukicommons.util.Util;
 import moe.protasis.yukimessenger.annotation.EndpointHandler;
@@ -61,7 +62,7 @@ public interface IYukiMessengerApi {
         try {
             return future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            return new MessageResponse(false, null);
+            return new MessageResponse(false, new JsonWrapper());
         }
     }
 

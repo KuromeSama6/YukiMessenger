@@ -7,6 +7,7 @@ import moe.protasis.yukicommons.json.JsonWrapper;
 import moe.protasis.yukicommons.util.EnvironmentType;
 import moe.protasis.yukicommons.util.Util;
 import moe.protasis.yukimessenger.bungee.YukiMessenger;
+import moe.protasis.yukimessenger.bungee.service.SpigotServer;
 
 import java.util.UUID;
 
@@ -60,5 +61,9 @@ public class InboundMessage {
         res.Set("__error", true);
         res.Set("__error_message", true);
         Respond(res);
+    }
+
+    public SpigotServer GetSpigot() {
+        return (SpigotServer)source;
     }
 }

@@ -32,7 +32,11 @@ public class MessageProcessor {
     public void HandleResponse(UUID id, MessageResponse response) {
         Consumer<MessageResponse> callback = callbacks.get(id);
         if (callback != null) {
-            callback.accept(response);
+            try {
+                callback.accept(response);
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
             callbacks.remove(id);
         }
     }

@@ -113,7 +113,7 @@ public class MessengerClient implements IMessageNode {
 
     public String GetIdent() {
         String ret = YukiMessenger.config.GetString("ident");
-        if (ret == null) {
+        if (ret == null || ret.isEmpty()) {
             // use the folder name
             ret = YukiMessenger.getInstance()
                     .getDataFolder()
@@ -134,7 +134,7 @@ public class MessengerClient implements IMessageNode {
         if (wsClient != null && wsClient.isOpen()) wsClient.close();
 
         String ip = YukiMessenger.config.GetString("ip", "127.0.0.1");
-        String port = YukiMessenger.config.GetString("port", "8633");
+        int port = YukiMessenger.config.GetInt("port", 8633);
         String uri = String.format("ws://%s:%s", ip, port);
         try {
             Map<String, String> headers = new HashMap<>();

@@ -8,6 +8,7 @@ import moe.protasis.yukimessenger.bungee.event.DownstreamServerDisconnectEvent;
 import moe.protasis.yukimessenger.message.InboundMessage;
 import moe.protasis.yukimessenger.util.EnvUtil;
 import moe.protasis.yukimessenger.util.PortKiller;
+import moe.protasis.yukimessenger.util.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.java_websocket.WebSocket;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class WSServer extends WebSocketServer {
     public WSServer(InetSocketAddress addr) {
         super(addr);
+        setReuseAddr(true);
 
         AddStartServerScheduler();
     }
@@ -77,30 +79,37 @@ public class WSServer extends WebSocketServer {
         }
 
         // check if the server is listed
+        YukiMessenger.GetLogger().info(String.format("Ident name is %s", ident));
         ServerInfo server = ProxyServer.getInstance().getServerInfo(ident);
         String ip = request.getFieldValue("ip");
-        int port = Integer.parseInt(request.getFieldValue("port"));
+//        int port = Integer.parseInt(request.getFieldValue("port"));
 
         if (server == null) {
-            ServerInfo info = ProxyServer.getInstance()
-                            .constructServerInfo(ident, new InetSocketAddress(ip, port), "", false);
-            ProxyServer.getInstance().getServers().put(ident, info);
-
-            YukiMessenger.GetLogger().warning(String.format(String.format("No server with that name defined. Adding that server: %s", info)));
+            YukiMessenger.GetLogger().severe("No server with that name defined");
+            throw new InvalidDataException(1002, "server not found");
         }
 
         return builder;
     }
 
     private void AddStartServerScheduler() {
-        if (EnvUtil.CheckPortUsable(getAddress().getPort())) {
+        try {
             start();
-        } else {
+        } catch (Exception e) {
+            e.printStackTrace();
             YukiMessenger.GetLogger().warning(String.format("Port %s is in use. Retrying in 1 second.", getAddress().getPort()));
-            try {
-                PortKiller.KillProcessByPort(getAddress().getPort());
-            } catch (Exception ignored) {}
             ProxyServer.getInstance().getScheduler().schedule(YukiMessenger.getInstance(), this::AddStartServerScheduler, 1, TimeUnit.SECONDS);
         }
+//        if (EnvUtil.CheckPortUsable(getAddress().getPort())) {
+//            start();
+//        } else {
+//            YukiMessenger.GetLogger().warning(String.format("Port %s is in use. Attempting to kill it and retrying in 1 second.", getAddress().getPort()));
+////            try {
+////                Util.KillProcess(Util.GetPidByPort(getAddress().getPort()));
+////            } catch (Exception e) {
+////                e.printStackTrace();
+////            }
+//            ProxyServer.getInstance().getScheduler().schedule(YukiMessenger.getInstance(), this::AddStartServerScheduler, 1, TimeUnit.SECONDS);
+//        }
     }
 }
