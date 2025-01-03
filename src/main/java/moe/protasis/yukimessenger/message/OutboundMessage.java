@@ -18,6 +18,10 @@ public class OutboundMessage {
     private final MessageDestination destination;
     private IMessageNode receiver;
 
+    public OutboundMessage(String action) {
+        this(action, new JsonWrapper());
+    }
+
     public OutboundMessage(String action, JsonWrapper data) {
         id = UuidCreator.getTimeBased();
         this.action = action;

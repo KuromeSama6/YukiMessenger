@@ -100,13 +100,17 @@ public class MessengerClient implements IMessageNode {
             // unidented message
             String action = msg.getAction();
             if (susbcribers.containsKey(action)) {
-                try {
-                    susbcribers.get(action).Handle(msg);
-                } catch (Exception e) {
-                    moe.protasis.yukimessenger.bungee.YukiMessenger.GetLogger().severe(String.format("An error occured while processing a message (action=%s)", action));
-                    e.printStackTrace();
-                    msg.Reject(e.getMessage());
-                }
+                Bukkit.getScheduler().runTaskAsynchronously(YukiMessenger.getInstance(), () -> {
+                    synchronized (susbcribers) {
+                        try {
+                            susbcribers.get(action).Handle(msg);
+                        } catch (Exception e) {
+                            moe.protasis.yukimessenger.bungee.YukiMessenger.GetLogger().severe(String.format("An error occured while processing a message (action=%s)", action));
+                            e.printStackTrace();
+                            msg.Reject(e.getMessage());
+                        }
+                    }
+                });
             }
         }
     }

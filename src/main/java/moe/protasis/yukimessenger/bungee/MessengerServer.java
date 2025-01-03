@@ -69,13 +69,17 @@ public class MessengerServer {
         if (msg.getAction() != null) {
             String action = msg.getAction();
             if (susbcribers.containsKey(action)) {
-                try {
-                    susbcribers.get(action).Handle(msg);
-                } catch (Exception e) {
-                    YukiMessenger.GetLogger().severe(String.format("An error occured while processing a message (server=%s, action=%s)", server.identName, action));
-                    e.printStackTrace();
-                    msg.Reject(e.getMessage());
-                }
+                ProxyServer.getInstance().getScheduler().runAsync(YukiMessenger.getInstance(), () -> {
+                    synchronized (susbcribers) {
+                        try {
+                            susbcribers.get(action).Handle(msg);
+                        } catch (Exception e) {
+                            YukiMessenger.GetLogger().severe(String.format("An error occured while processing a message (server=%s, action=%s)", server.identName, action));
+                            e.printStackTrace();
+                            msg.Reject(e.getMessage());
+                        }
+                    }
+                });
             }
         }
 
