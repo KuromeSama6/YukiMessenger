@@ -1,7 +1,7 @@
 package moe.protasis.yukimessenger.spigot;
 
 import lombok.Getter;
-import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 import moe.protasis.yukicommons.util.JsonUtil;
 import moe.protasis.yukimessenger.annotation.EndpointHandler;
 import moe.protasis.yukimessenger.annotation.MessageHandler;
@@ -53,7 +53,7 @@ public class YukiMessenger extends JavaPlugin implements EndpointHandler {
         if (!label.equals("ymping")) return true;
         String content = args.length > 0 ? args[0] : "";
         sender.sendMessage("ping");
-        api.SendAsync(new OutboundMessage("yukimessenger.ping", new JsonWrapper()
+        api.SendAsync(OutboundMessage.ToProxy("yukimessenger.ping", new JsonWrapper()
                 .Set("content", content)), res -> {
 
             sender.sendMessage(String.format("pong [processed=%s] %s", res.isProcessed(), res.getData().GetString("content")));

@@ -1,6 +1,6 @@
 package moe.protasis.yukimessenger.bungee.command;
 
-import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 import moe.protasis.yukimessenger.api.IYukiMessengerApi;
 import moe.protasis.yukimessenger.bungee.YukiMessenger;
 import moe.protasis.yukimessenger.bungee.service.SpigotServer;
@@ -20,7 +20,7 @@ public class PingCommand extends Command {
         IYukiMessengerApi api = IYukiMessengerApi.Get();
         SpigotServer server = api.GetServer(strings[0]);
         sender.sendMessage(new TextComponent("ping"));
-        api.SendAsync(new OutboundMessage(server, "yukimessenger.ping", new JsonWrapper()
+        api.SendAsync(OutboundMessage.ToClient(server, "yukimessenger.ping", new JsonWrapper()
                 .Set("content", msg)), res -> {
 
             sender.sendMessage(new TextComponent(String.format("pong [processed=%s] %s", res.isProcessed(), res.getData().GetString("content"))));

@@ -1,7 +1,7 @@
 package moe.protasis.yukimessenger.bungee.service;
 
 import com.google.gson.JsonObject;
-import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 import moe.protasis.yukimessenger.message.IMessageNode;
 import moe.protasis.yukimessenger.util.EnvUtil;
 import net.md_5.bungee.api.config.ServerInfo;

@@ -1,7 +1,7 @@
 package moe.protasis.yukimessenger.bungee.service;
 
 import com.google.gson.JsonParser;
-import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 import moe.protasis.yukimessenger.bungee.MessengerServer;
 import moe.protasis.yukimessenger.bungee.YukiMessenger;
 import moe.protasis.yukimessenger.bungee.event.DownstreamServerDisconnectEvent;

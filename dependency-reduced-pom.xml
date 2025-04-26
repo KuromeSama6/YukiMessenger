@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>moe.protasis</groupId>
   <artifactId>YukiMessenger</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <build>
     <plugins>
       <plugin>
@@ -137,8 +137,8 @@
     </dependency>
     <dependency>
       <groupId>moe.protasis</groupId>
-      <artifactId>YukiCommons</artifactId>
-      <version>1.0</version>
+      <artifactId>yukicommons-api</artifactId>
+      <version>1.2.0</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

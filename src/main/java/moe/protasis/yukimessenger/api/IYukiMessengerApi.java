@@ -1,6 +1,6 @@
 package moe.protasis.yukimessenger.api;
 
-import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 import moe.protasis.yukicommons.util.EnvironmentType;
 import moe.protasis.yukicommons.util.Util;
 import moe.protasis.yukimessenger.annotation.EndpointHandler;
@@ -67,7 +67,7 @@ public interface IYukiMessengerApi {
     }
 
     static IYukiMessengerApi Get() {
-        if (Util.GetEnvironment() == EnvironmentType.PROXY) return new MessengerApiBungeecord();
+        if (Util.GetEnvironment() == EnvironmentType.BUNGEECORD) return new MessengerApiBungeecord();
         else return new MessengerApiBukkit();
     }
 }

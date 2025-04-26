@@ -3,12 +3,14 @@ package moe.protasis.yukimessenger.message;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
-import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 import moe.protasis.yukicommons.util.EnvironmentType;
 import moe.protasis.yukicommons.util.Util;
+import moe.protasis.yukimessenger.api.IYukiMessengerApi;
 import moe.protasis.yukimessenger.bungee.YukiMessenger;
 import moe.protasis.yukimessenger.bungee.service.SpigotServer;
 
+import java.util.List;
 import java.util.UUID;
 
 @ToString
@@ -22,14 +24,25 @@ public class InboundMessage {
     private final UUID id;
     @Getter
     private final String action;
+    @Getter
+    private final List<String> forwardedServers;
+    @Getter
+    private final boolean proxyIgnore, error;
+    @Getter
+    private final String errorMessage;
 
     public InboundMessage(IMessageNode source, JsonWrapper data) {
-        destination = Util.GetEnvironment() == EnvironmentType.PROXY ? MessageDestination.SERVER : MessageDestination.CLIENT;
+        destination = Util.GetEnvironment() == EnvironmentType.BUNGEECORD ? MessageDestination.SERVER : MessageDestination.CLIENT;
         this.source = source;
         this.data = data;
 
         id = data.GetUuid("__id");
         action = data.GetString("__action");
+        proxyIgnore = data.GetBool("__proxy_ignore");
+        forwardedServers = data.GetList("__forwarded_to", String.class);
+
+        error = data.GetBool("__error");
+        errorMessage = data.GetString("__error_message");
 
         data.Set("__id", null);
         data.Set("__action", null);
@@ -55,11 +68,11 @@ public class InboundMessage {
      * @param msg The reason for rejection.
      */
     public void Reject(String msg) {
-        YukiMessenger.GetLogger().severe(String.format("An inbound message was rejected: %s", msg));
+        IYukiMessengerApi.Get().GetLogger().severe(String.format("An inbound message was rejected: %s", msg));
 
         JsonWrapper res = new JsonWrapper();
         res.Set("__error", true);
-        res.Set("__error_message", true);
+        res.Set("__error_message", msg);
         Respond(res);
     }
 

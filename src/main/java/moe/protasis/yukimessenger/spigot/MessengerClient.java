@@ -2,7 +2,7 @@ package moe.protasis.yukimessenger.spigot;
 
 import com.google.gson.JsonObject;
 import lombok.Getter;
-import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 import moe.protasis.yukimessenger.api.IInboundMessageHandler;
 import moe.protasis.yukimessenger.api.impl.EndpointMethodHandler;
 import moe.protasis.yukimessenger.api.impl.LegacyEndpointHandler;

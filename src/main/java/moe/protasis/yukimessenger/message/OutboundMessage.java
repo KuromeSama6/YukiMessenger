@@ -2,12 +2,15 @@ package moe.protasis.yukimessenger.message;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.Getter;
-import moe.protasis.yukicommons.json.JsonWrapper;
+import lombok.var;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 import moe.protasis.yukicommons.util.EnvironmentType;
 import moe.protasis.yukicommons.util.Util;
 import moe.protasis.yukimessenger.bungee.service.SpigotServer;
 import moe.protasis.yukimessenger.spigot.MessengerClient;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -18,11 +21,11 @@ public class OutboundMessage {
     private final MessageDestination destination;
     private IMessageNode receiver;
 
-    public OutboundMessage(String action) {
+    private OutboundMessage(String action) {
         this(action, new JsonWrapper());
     }
 
-    public OutboundMessage(String action, JsonWrapper data) {
+    private OutboundMessage(String action, JsonWrapper data) {
         id = UuidCreator.getTimeBased();
         this.action = action;
         this.data = data;
@@ -34,7 +37,7 @@ public class OutboundMessage {
         receiver = MessengerClient.getInstance();
     }
 
-    public OutboundMessage(SpigotServer receiver, String action, JsonWrapper data) {
+    private OutboundMessage(SpigotServer receiver, String action, JsonWrapper data) {
         id = UuidCreator.getTimeBased();
         this.action = action;
         this.data = data;
@@ -45,4 +48,23 @@ public class OutboundMessage {
         destination = MessageDestination.SERVER;
         this.receiver = receiver;
     }
+
+    public static OutboundMessage ToProxy(String action, JsonWrapper data) {
+        return new OutboundMessage(action, data);
+    }
+    public static OutboundMessage ToOtherServers(String action, JsonWrapper data, String... servers) {
+        var ret = ToProxyAndOtherServers(action, data, servers);
+        data.Set("__proxy_ignore", true);
+        return ret;
+    }
+    public static OutboundMessage ToProxyAndOtherServers(String action, JsonWrapper data, String... servers) {
+        var ret = new OutboundMessage(action, data);
+        data.Set("__forward_to", Arrays.asList(servers));
+        return ret;
+    }
+
+    public static OutboundMessage ToClient(SpigotServer receiver, String action, JsonWrapper data) {
+        return new OutboundMessage(receiver, action, data);
+    }
+
 }

@@ -1,7 +1,7 @@
 package moe.protasis.yukimessenger.bungee;
 
 import lombok.Getter;
-import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 import moe.protasis.yukicommons.util.JsonUtil;
 import moe.protasis.yukimessenger.api.IYukiMessengerApi;
 import moe.protasis.yukimessenger.api.YukiMessengerAPI;

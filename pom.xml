@@ -6,7 +6,7 @@
 
     <groupId>moe.protasis</groupId>
     <artifactId>YukiMessenger</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -131,8 +131,8 @@
         </dependency>
         <dependency>
             <groupId>moe.protasis</groupId>
-            <artifactId>YukiCommons</artifactId>
-            <version>1.0</version>
+            <artifactId>yukicommons-api</artifactId>
+            <version>1.2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

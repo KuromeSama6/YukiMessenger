@@ -2,12 +2,10 @@ package moe.protasis.yukimessenger.bungee;
 
 import com.google.gson.JsonObject;
 import lombok.Getter;
-import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 import moe.protasis.yukimessenger.api.IInboundMessageHandler;
-import moe.protasis.yukimessenger.message.InboundMessage;
-import moe.protasis.yukimessenger.message.MessageProcessor;
-import moe.protasis.yukimessenger.message.MessageResponse;
-import moe.protasis.yukimessenger.message.ServerInboundMessage;
+import moe.protasis.yukimessenger.api.IYukiMessengerApi;
+import moe.protasis.yukimessenger.message.*;
 import moe.protasis.yukimessenger.bungee.service.SpigotServer;
 import moe.protasis.yukimessenger.bungee.service.WSServer;
 import moe.protasis.yukimessenger.util.JsonObjectBuilder;
@@ -77,6 +75,17 @@ public class MessengerServer {
                             YukiMessenger.GetLogger().severe(String.format("An error occured while processing a message (server=%s, action=%s)", server.identName, action));
                             e.printStackTrace();
                             msg.Reject(e.getMessage());
+                        }
+                    }
+
+                    if (!msg.isProxyIgnore() && !msg.getForwardedServers().isEmpty()) {
+                        for (String serverName : msg.getForwardedServers()) {
+                            SpigotServer target = IYukiMessengerApi.Get().GetServer(serverName);
+                            if (target == null || target == msg.GetSpigot()) return;
+
+                            JsonWrapper json = new JsonWrapper(msg.getData().toString());
+                            json.Set("__forwarded_by", msg.GetSpigot().identName);
+                            target.Send(json);
                         }
                     }
                 });

@@ -3,7 +3,7 @@ package moe.protasis.yukimessenger.message;
 import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import moe.protasis.yukicommons.json.JsonWrapper;
+import moe.protasis.yukicommons.api.json.JsonWrapper;
 
 @Getter
 @AllArgsConstructor

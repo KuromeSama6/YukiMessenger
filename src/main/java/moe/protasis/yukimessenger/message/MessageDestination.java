@@ -10,6 +10,6 @@ public enum MessageDestination {
 
     public boolean Matches() {
         EnvironmentType env = Util.GetEnvironment();
-        return this == BOTH || env == EnvironmentType.PROXY && this == SERVER || env == EnvironmentType.SPIGOT && this == CLIENT;
+        return this == BOTH || env == EnvironmentType.BUNGEECORD && this == SERVER || env == EnvironmentType.BUKKIT && this == CLIENT;
     }
 }
