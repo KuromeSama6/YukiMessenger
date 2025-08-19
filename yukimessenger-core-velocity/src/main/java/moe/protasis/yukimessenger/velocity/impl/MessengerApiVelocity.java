@@ -12,6 +12,7 @@ import moe.protasis.yukimessenger.api.message.OutboundMessage;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -65,9 +66,11 @@ public class MessengerApiVelocity implements IYukiMessengerAPI {
     }
 
     @Override
-    public void SendAsync(OutboundMessage msg, Consumer<MessageResponse> callback) {
-        if (YukiMessenger.getInstance().getServer().getProcessor().AddTask(msg, callback)) {
+    public CompletableFuture<MessageResponse> SendAsync(OutboundMessage msg) {
+        var callback = new CompletableFuture<MessageResponse>();
+        if (YukiMessenger.getInstance().getServer().getProcessor().AddTask(msg, callback::complete)) {
             msg.getReceiver().Send(msg.getData());
         }
+        return callback;
     }
 }

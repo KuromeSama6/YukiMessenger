@@ -18,7 +18,6 @@ public class MessengerWebsocketServer extends WebSocketServer {
         super(addr);
         this.messenger = messenger;
         setReuseAddr(true);
-
         AddStartServerScheduler();
     }
     

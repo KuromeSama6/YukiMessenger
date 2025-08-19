@@ -19,10 +19,8 @@ public class PingCommand implements RawCommand {
         VelocityDownstream server = api.GetServer(strings[0]);
         sender.sendMessage(Component.text("ping"));
         api.SendAsync(OutboundMessage.ToClient(server, "yukimessenger.ping", new JsonWrapper()
-                .Set("content", msg)), res -> {
-
-            sender.sendMessage(Component.text(String.format("pong [processed=%s] %s", res.isProcessed(), res.getData().GetString("content"))));
-        });
+                .Set("content", msg)))
+                .thenAccept(res -> sender.sendMessage(Component.text(String.format("pong [processed=%s] %s", res.isProcessed(), res.getData().GetString("content")))));
     }
 
     @Override

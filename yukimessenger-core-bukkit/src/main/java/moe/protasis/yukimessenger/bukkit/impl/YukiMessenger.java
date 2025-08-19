@@ -60,10 +60,8 @@ public class YukiMessenger extends JavaPlugin implements EndpointHandler, IAbstr
         String content = args.length > 0 ? args[0] : "";
         sender.sendMessage("ping");
         api.SendAsync(OutboundMessage.ToProxy("yukimessenger.ping", new JsonWrapper()
-                .Set("content", content)), res -> {
-
-            sender.sendMessage(String.format("pong [processed=%s] %s", res.isProcessed(), res.getData().GetString("content")));
-        });
+                .Set("content", content)))
+                .thenAccept(res -> sender.sendMessage(String.format("pong [processed=%s] %s", res.isProcessed(), res.getData().GetString("content"))));
 
         return true;
     }

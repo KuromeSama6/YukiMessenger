@@ -39,6 +39,11 @@ public class BungeecordMessenger extends Messenger {
     }
 
     @Override
+    protected void OnOpen(IConnectedClient client, ClientHandshake clientHandshake) {
+
+    }
+
+    @Override
     public void HandleClose(WebSocket conn, int code, String message) {
         super.HandleClose(conn, code, message);
     }

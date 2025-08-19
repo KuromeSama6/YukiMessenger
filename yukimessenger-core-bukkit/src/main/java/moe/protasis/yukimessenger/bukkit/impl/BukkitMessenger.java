@@ -63,4 +63,9 @@ public class BukkitMessenger extends Messenger {
     protected int GetClientPort() {
         return Bukkit.getPort();
     }
+
+    @Override
+    public String GetId() {
+        return YukiMessenger.config.GetString("ident");
+    }
 }

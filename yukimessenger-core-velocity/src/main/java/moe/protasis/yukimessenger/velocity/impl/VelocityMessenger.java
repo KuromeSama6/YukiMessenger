@@ -3,6 +3,7 @@ package moe.protasis.yukimessenger.velocity.impl;
 import moe.protasis.yukicommons.api.plugin.IAbstractPlugin;
 import moe.protasis.yukimessenger.velocity.YukiMessenger;
 import moe.protasis.yukimessenger.api.message.IConnectedClient;
+import moe.protasis.yukimessenger.velocity.event.DownstreamServerConnectedEvent;
 import moe.protasis.yukimessenger.velocity.event.DownstreamServerDisconnectEvent;
 import moe.protasis.yukimessenger.server.Messenger;
 import org.java_websocket.WebSocket;
@@ -35,6 +36,13 @@ public class VelocityMessenger extends Messenger {
     protected void OnClosed(IConnectedClient client, int code, String message) {
         DownstreamServerDisconnectEvent e = new DownstreamServerDisconnectEvent((VelocityDownstream)client, code, message);
         YukiMessenger.getInstance().getProxyServer().getEventManager().fireAndForget(e);
+    }
+
+    @Override
+    protected void OnOpen(IConnectedClient client, ClientHandshake clientHandshake) {
+        var downstream = (VelocityDownstream) client;
+        var event = new DownstreamServerConnectedEvent(downstream);
+        YukiMessenger.getInstance().getProxyServer().getEventManager().fireAndForget(event);
     }
 
     @Override

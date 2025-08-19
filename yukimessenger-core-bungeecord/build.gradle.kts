@@ -30,6 +30,7 @@ dependencies {
     compileOnly("commons-io:commons-io:2.14.0")
     compileOnly("org.projectlombok:lombok:1.18.30")
     compileOnly("moe.protasis:yukicommons-core-bungeecord:1.2.1")
+    compileOnly("moe.protasis:yukicommons-api:1.2.1")
     compileOnly("org.java-websocket:Java-WebSocket:1.5.4")
     implementation("com.google.code.gson:gson:2.13.1")
     implementation(project(":yukimessenger-api"))

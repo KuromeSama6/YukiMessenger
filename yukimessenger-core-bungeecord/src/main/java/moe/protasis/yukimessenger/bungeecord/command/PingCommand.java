@@ -20,10 +20,8 @@ public class PingCommand extends Command {
         SpigotDownstream server = api.GetServer(strings[0]);
         sender.sendMessage(new TextComponent("ping"));
         api.SendAsync(OutboundMessage.ToClient(server, "yukimessenger.ping", new JsonWrapper()
-                .Set("content", msg)), res -> {
-
-            sender.sendMessage(new TextComponent(String.format("pong [processed=%s] %s", res.isProcessed(), res.getData().GetString("content"))));
-        });
+                .Set("content", msg)))
+                .thenAccept(res -> sender.sendMessage(new TextComponent(String.format("pong [processed=%s] %s", res.isProcessed(), res.getData().GetString("content")))));
 
     }
 }

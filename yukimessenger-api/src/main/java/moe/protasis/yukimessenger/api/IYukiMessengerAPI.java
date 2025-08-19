@@ -47,15 +47,13 @@ public interface IYukiMessengerAPI {
     }
 
     void Subscribe(EndpointHandler handler);
-    void SendAsync(OutboundMessage msg, Consumer<MessageResponse> callback);
+    CompletableFuture<MessageResponse> SendAsync(OutboundMessage msg);
 
     default MessageResponse SendSync(OutboundMessage msg) {
         return SendSync(msg, 10000L);
     }
     default MessageResponse SendSync(OutboundMessage msg, long timeout) {
-        CompletableFuture<MessageResponse> future = new CompletableFuture<>();
-
-        SendAsync(msg, future::complete);
+        CompletableFuture<MessageResponse> future = SendAsync(msg);
 
         try {
             return future.get(timeout, TimeUnit.MILLISECONDS);

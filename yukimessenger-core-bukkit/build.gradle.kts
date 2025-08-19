@@ -29,6 +29,7 @@ dependencies {
 //    compileOnly("commons-io:commons-io:2.11.0")
     compileOnly("commons-io:commons-io:2.14.0")
     compileOnly("org.projectlombok:lombok:1.18.30")
+    compileOnly("moe.protasis:yukicommons-api:1.2.1")
     compileOnly("moe.protasis:yukicommons-core-bukkit:1.2.1")
     compileOnly("org.java-websocket:Java-WebSocket:1.5.4")
 

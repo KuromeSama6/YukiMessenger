@@ -18,8 +18,8 @@ public class MessageProcessor {
 
     public boolean AddTask(OutboundMessage msg, Consumer<MessageResponse> callback) {
         if (!api.IsReady()) {
-            api.GetLogger().warning("Attempted to send a message when the service is not ready. Queued it for retry.");
-            retryQueue.put(msg, callback);
+//            api.GetLogger().warning("Attempted to send a message when the service is not ready. Queued it for retry.");
+//            retryQueue.put(msg, callback);
             return false;
         }
 

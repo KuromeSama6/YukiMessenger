@@ -8,6 +8,7 @@ import moe.protasis.yukimessenger.api.message.*;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -57,10 +58,13 @@ public class MessengerApiBukkit implements IYukiMessengerAPI {
     }
 
     @Override
-    public void SendAsync(OutboundMessage msg, Consumer<MessageResponse> callback) {
+    public CompletableFuture<MessageResponse> SendAsync(OutboundMessage msg) {
+        var future = new CompletableFuture<MessageResponse>();
         MessageProcessor processor = YukiMessenger.getInstance().getClient().getProcessor();
-        if (processor.AddTask(msg, callback)) {
+        if (processor.AddTask(msg, future::complete)) {
             msg.getReceiver().Send(msg.getData());
         }
+
+        return future;
     }
 }

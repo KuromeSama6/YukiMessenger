@@ -43,8 +43,8 @@ public abstract class Messenger implements IMessageNode {
 
     public void SendAsync(OutboundMessage msg, Consumer<MessageResponse> callback) {
         if (!wsClient.isReady()) {
-            GetLogger().warning("Attempted to send a message when the service is not ready. Queued it for retry.");
-            processor.getRetryQueue().put(msg, callback);
+//            GetLogger().warning("Attempted to send a message when the service is not ready. Queued it for retry.");
+//            processor.getRetryQueue().put(msg, callback);
             return;
         }
 

@@ -14,6 +14,7 @@ import org.java_websocket.handshake.ClientHandshake;
 
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public abstract class Messenger {
@@ -24,7 +25,7 @@ public abstract class Messenger {
     private final PooledScheduler scheduler;
     @Getter
     private final List<IConnectedClient> clients = new ArrayList<>();
-    private final Map<String, IInboundMessageHandler> susbcribers = new HashMap<>();
+    private final Map<String, IInboundMessageHandler> susbcribers = new ConcurrentHashMap<>();
     @Getter
     private final MessageProcessor processor = new MessageProcessor();
 
@@ -39,6 +40,7 @@ public abstract class Messenger {
     protected abstract Logger GetLogger();
     protected abstract IConnectedClient CreateClient(WebSocket conn, String ident, ClientHandshake clientHandshake);
     protected abstract void OnClosed(IConnectedClient client, int code, String message);
+    protected abstract void OnOpen(IConnectedClient client, ClientHandshake clientHandshake);
 
     public void HandleOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
         // this connection has already been verified
@@ -53,6 +55,7 @@ public abstract class Messenger {
 
         clients.add(client);
         GetLogger().info(String.format("§aServer %s connection established.", ident));
+        OnOpen(client, clientHandshake);
     }
 
 
@@ -101,14 +104,12 @@ public abstract class Messenger {
             String action = msg.getAction();
             if (susbcribers.containsKey(action)) {
                 scheduler.RunAsync(() -> {
-                    synchronized (susbcribers) {
-                        try {
-                            susbcribers.get(action).Handle(msg);
-                        } catch (Exception e) {
-                            GetLogger().severe(String.format("An error occured while processing a message (server=%s, action=%s)", server.GetId(), action));
-                            e.printStackTrace();
-                            msg.Reject(e.getMessage());
-                        }
+                    try {
+                        susbcribers.get(action).Handle(msg);
+                    } catch (Exception e) {
+                        GetLogger().severe(String.format("An error occured while processing a message (server=%s, action=%s)", server.GetId(), action));
+                        e.printStackTrace();
+                        msg.Reject(e.getMessage());
                     }
 
                     if (!msg.isProxyIgnore() && !msg.getForwardedServers().isEmpty()) {
