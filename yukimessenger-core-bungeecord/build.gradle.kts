@@ -21,11 +21,12 @@ repositories {
     maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
+    maven("https://libraries.minecraft.net")
 }
 
 dependencies {
     compileOnly("joda-time:joda-time:2.12.5")
-    compileOnly("net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT")
+    compileOnly("net.md-5:bungeecord-api:1.21-R0.1")
 //    compileOnly("commons-io:commons-io:2.11.0")
     compileOnly("commons-io:commons-io:2.14.0")
     compileOnly("org.projectlombok:lombok:1.18.30")
