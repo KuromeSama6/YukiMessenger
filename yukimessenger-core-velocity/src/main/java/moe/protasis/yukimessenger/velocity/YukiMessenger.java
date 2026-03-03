@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 @Plugin(
         id = "yukimessenger",
         name = "YukiMessenger",
-        version = "1.1.2",
+        version = "1.1.3",
         authors = "KuromeSama6",
         dependencies = {
                 @Dependency(id = "yukicommons")

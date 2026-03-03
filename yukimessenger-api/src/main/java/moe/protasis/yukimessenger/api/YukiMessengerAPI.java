@@ -10,6 +10,7 @@ public class YukiMessengerAPI {
         if (current != null) {
             throw new IllegalStateException("YukiMessengerAPI is already set to " + current);
         } else {
+            api.GetLogger().info("Setting YukiMessengerAPI to " + api);
             current = api;
         }
     }

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "moe.protasis"
-version = "1.1.2"
+version = "1.1.3"
 description = "Parent project for YukiMessenger"
 
 java {
@@ -14,6 +14,7 @@ java {
 
 tasks.named("build") {
     finalizedBy(":yukimessenger-api:publishToMavenLocal")
+    finalizedBy(":yukimessenger-rpc:publishToMavenLocal")
     finalizedBy(":yukimessenger-core-bukkit:publishToMavenLocal")
     finalizedBy(":yukimessenger-core-bungeecord:publishToMavenLocal")
     finalizedBy(":yukimessenger-core-velocity:publishToMavenLocal")

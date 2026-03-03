@@ -1,5 +1,6 @@
 package moe.protasis.yukimessenger.bukkit.impl;
 
+import moe.protasis.yukimessenger.api.IInboundMessageHandler;
 import moe.protasis.yukimessenger.api.annotation.EndpointHandler;
 import moe.protasis.yukimessenger.api.annotation.MessageHandler;
 import moe.protasis.yukimessenger.api.IYukiMessengerAPI;
@@ -55,6 +56,11 @@ public class MessengerApiBukkit implements IYukiMessengerAPI {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void Subscribe(String name, IInboundMessageHandler handler) {
+        YukiMessenger.getInstance().getClient().Subscribe(name, handler);
     }
 
     @Override

@@ -47,6 +47,7 @@ public interface IYukiMessengerAPI {
     }
 
     void Subscribe(EndpointHandler handler);
+    void Subscribe(String name, IInboundMessageHandler handler);
     CompletableFuture<MessageResponse> SendAsync(OutboundMessage msg);
 
     default MessageResponse SendSync(OutboundMessage msg) {

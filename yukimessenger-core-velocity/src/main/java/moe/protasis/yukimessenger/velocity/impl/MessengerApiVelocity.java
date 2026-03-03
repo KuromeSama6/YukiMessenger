@@ -1,5 +1,6 @@
 package moe.protasis.yukimessenger.velocity.impl;
 
+import moe.protasis.yukimessenger.api.IInboundMessageHandler;
 import moe.protasis.yukimessenger.velocity.YukiMessenger;
 import moe.protasis.yukimessenger.api.IYukiMessengerAPI;
 import moe.protasis.yukimessenger.api.annotation.EndpointHandler;
@@ -63,6 +64,11 @@ public class MessengerApiVelocity implements IYukiMessengerAPI {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void Subscribe(String name, IInboundMessageHandler handler) {
+        YukiMessenger.getInstance().getServer().Subscribe(name, handler);
     }
 
     @Override

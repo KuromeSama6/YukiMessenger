@@ -1,5 +1,6 @@
 package moe.protasis.yukimessenger.bungeecord.impl;
 
+import moe.protasis.yukimessenger.api.IInboundMessageHandler;
 import moe.protasis.yukimessenger.bungeecord.YukiMessenger;
 import moe.protasis.yukimessenger.api.annotation.EndpointHandler;
 import moe.protasis.yukimessenger.api.annotation.MessageHandler;
@@ -63,6 +64,11 @@ public class MessengerApiBungeecord implements IYukiMessengerAPI {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void Subscribe(String name, IInboundMessageHandler handler) {
+        YukiMessenger.getInstance().getServer().Subscribe(name, handler);
     }
 
     @Override
