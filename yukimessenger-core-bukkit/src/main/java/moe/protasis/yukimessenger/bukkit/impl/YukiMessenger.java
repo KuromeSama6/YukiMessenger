@@ -12,11 +12,13 @@ import moe.protasis.yukimessenger.api.annotation.MessageHandler;
 import moe.protasis.yukimessenger.api.IYukiMessengerAPI;
 import moe.protasis.yukimessenger.api.message.InboundMessage;
 import moe.protasis.yukimessenger.api.message.OutboundMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 public class YukiMessenger extends JavaPlugin implements EndpointHandler, IAbstractPlugin {
@@ -43,9 +45,24 @@ public class YukiMessenger extends JavaPlugin implements EndpointHandler, IAbstr
                 getResource("config.json")
         );
 
-        client = new BukkitMessenger();
-        api.Subscribe(this);
+        try {
+            client = new BukkitMessenger();
 
+            getLogger().info("Waiting for websocket connection...");
+            client.getWsClient().getConnectionFuture().get();
+
+        } catch (ExecutionException e) {
+            getLogger().severe("Failed to start YukiMessenger! Shutting down server...");
+            e.printStackTrace();
+
+            Bukkit.shutdown();
+            return;
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        api.Subscribe(this);
     }
 
     @Override

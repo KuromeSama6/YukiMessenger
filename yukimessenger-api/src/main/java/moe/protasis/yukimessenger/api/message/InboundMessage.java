@@ -57,6 +57,10 @@ public class InboundMessage {
         source.Send(data);
     }
 
+    public void Succeed() {
+        Respond(new JsonWrapper());
+    }
+
     /**
      * <b>Proxy only.</b>
      * Rejects this message from a client.

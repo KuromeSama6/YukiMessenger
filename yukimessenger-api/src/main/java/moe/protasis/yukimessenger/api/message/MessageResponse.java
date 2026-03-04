@@ -9,4 +9,8 @@ import moe.protasis.yukicommons.api.json.JsonWrapper;
 public class MessageResponse {
     private final boolean processed;
     private final JsonWrapper data;
+
+    public String GetMessage() {
+        return data.GetString("__message", "");
+    }
 }

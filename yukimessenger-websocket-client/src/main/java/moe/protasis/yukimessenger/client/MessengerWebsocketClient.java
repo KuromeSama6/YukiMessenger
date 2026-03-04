@@ -8,6 +8,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 public class MessengerWebsocketClient extends WebSocketClient {
@@ -15,20 +16,21 @@ public class MessengerWebsocketClient extends WebSocketClient {
     @Getter
     private boolean isReady;
     private final Logger logger;
+    @Getter
+    private CompletableFuture<Void> connectionFuture = new CompletableFuture<>();
 
     public MessengerWebsocketClient(Messenger messenger, URI serverUri, Map<String, String> headers) {
         super(serverUri, headers);
         this.messenger = messenger;
         this.logger = messenger.GetLogger();
-        connect();
     }
-
 
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
         logger.info(String.format("§bConnected to §f%s", getURI()));
         isReady = true;
         messenger.FlushRetryQueue();
+        connectionFuture.complete(null);
     }
 
     @Override
@@ -47,5 +49,8 @@ public class MessengerWebsocketClient extends WebSocketClient {
     public void onError(Exception e) {
         logger.severe("An error occured in the websocket client.");
         e.printStackTrace();
+        if (!connectionFuture.isDone()) {
+            connectionFuture.completeExceptionally(e);
+        }
     }
 }

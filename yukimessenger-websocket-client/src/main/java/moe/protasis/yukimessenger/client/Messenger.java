@@ -20,10 +20,13 @@ public abstract class Messenger implements IMessageNode {
     @Getter
     private final MessageProcessor processor = new MessageProcessor();
     private final PooledScheduler scheduler;
+    private boolean initialized = false;
 
     public Messenger(IAbstractPlugin plugin, long reconnectInterval) {
         GetLogger().info(String.format("§bStarting websocket client with ident %s", GetIdent()));
         wsClient = CreateClient();
+        wsClient.connect();
+
         scheduler = new PooledScheduler(plugin);
 
         if (reconnectInterval > 0) {
@@ -39,6 +42,7 @@ public abstract class Messenger implements IMessageNode {
         if (wsClient.isReady()) return;
         GetLogger().info("§7Attempting to reconnect websocket...");
         wsClient = CreateClient();
+        wsClient.connect();
     }
 
     public void SendAsync(OutboundMessage msg, Consumer<MessageResponse> callback) {
@@ -112,6 +116,7 @@ public abstract class Messenger implements IMessageNode {
             headers.put("port", String.valueOf(GetClientPort()));
             GetLogger().info(String.format("Websocket client starting on %s", uri));
             return new MessengerWebsocketClient(this, new URI(uri), headers);
+
         } catch (URISyntaxException e) {
             GetLogger().severe(String.format("Unable to parse URI (%s)!", uri));
             throw new RuntimeException(e);
