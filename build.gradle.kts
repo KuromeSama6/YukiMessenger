@@ -17,6 +17,8 @@ tasks.named("build") {
     finalizedBy(":yukimessenger-core-bukkit:publishToMavenLocal")
     finalizedBy(":yukimessenger-core-bungeecord:publishToMavenLocal")
     finalizedBy(":yukimessenger-core-velocity:publishToMavenLocal")
+    finalizedBy(":yukimessenger-websocket-server:publishToMavenLocal")
+    finalizedBy(":yukimessenger-websocket-client:publishToMavenLocal")
 }
 
 allprojects {
