@@ -11,6 +11,6 @@ public class MessageResponse {
     private final JsonWrapper data;
 
     public String GetMessage() {
-        return data.GetString("__message", "");
+        return data.GetString("__error_message", "");
     }
 }
